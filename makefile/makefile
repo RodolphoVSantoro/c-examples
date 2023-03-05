@@ -9,12 +9,13 @@ flags=-std=c99
 
 default : $(main)
 	$(compiler) $(flags) $(warn) $(includes) $(libs) $(main) -o $(output)
+
 run: $(output)
 	./$(output)
 
 lib_source=lib/libshapes.c
 lib_static=lib/libshapes.o
 lib_dll=bin/libshapes.dll
-build_lib:
+build_lib: $(lib_source)
 	$(compiler) -c $(lib_source) $(includes) -o $(lib_static)
 	$(compiler) -shared -o $(lib_dll) $(lib_static)
