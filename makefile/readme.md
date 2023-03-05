@@ -33,6 +33,10 @@ makefile
 ```
 
 ### What's happening in the Makefile
+#### Using the makefile
+* You must run "make build_lib" to compile the library's source code into a dynamic library
+* Then you can run "make" to compile the main.c file
+* And finally, you can run "make run" to run the resulting executable
 #### Variables
 * The first line creates a variable with the path to main's source code
 ```makefile
