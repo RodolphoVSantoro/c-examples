@@ -6,3 +6,5 @@
 Each example has a readme.md file with instructions on how to use it
 ## Current examples
 * [Learning makefile basics by example](./makefile)
+* [Learning static libraries by example](./static-libraries)
+* [Learning dynamic allocation basics by example](./dynamic-libraries)
