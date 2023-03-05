@@ -21,12 +21,12 @@ runs the executable
 ```
 makefile
 ├── bin
-│   ├──libshapes.dll
+│   ├── libshapes.dll
 │   └── main
 ├── include
-│   └── shapes.h
+│   └── libshapes.h
 ├── lib
-│   ├──libshapes.o
+│   ├── libshapes.o
 │   └── libshapes.c
 ├── src
 │   └── main.c
