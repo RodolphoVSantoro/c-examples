@@ -18,9 +18,9 @@ int main() {
     printf("value magic_char_location references = %c\n\n", *magic_char_location);
 
     magic_location = (void *)magic_number_location;
-    printf("value magic_location references = %d\n", (int *)magic_location);
+    printf("value magic_location references = %d\n", *((int *)magic_location));
     magic_location = (void *)magic_char_location;
-    printf("value magic_location references = %c\n\n", (char *)magic_location);
+    printf("value magic_location references = %c\n\n", *((char *)magic_location));
 
     // error: dereferencing 'void *' pointer
     // printf("value magic_location references = %d\n", *magic_location);

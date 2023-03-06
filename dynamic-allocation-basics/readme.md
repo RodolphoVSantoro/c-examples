@@ -19,11 +19,17 @@ run one of the examples listed by the command above
 ```
 makefile
 ├── bin
+│   ├── malloc.exe
+│   ├── pointer_arithmetic.exe
+│   ├── pointer_types.exe
 │   ├── pointer.exe
-│   └── malloc.exe
+│   └── sizeof.exe
 ├── src
 │   ├── malloc.c
-│   └── pointer.c
+│   ├── pointer_arithmetic.c
+│   ├── pointer_types.c
+│   ├── pointer.c
+│   └── sizeof.c
 ```
 
 ## Dynamic memory allocation basics
@@ -137,7 +143,7 @@ printf("value magic_location references = %c\n\n", (char *)magic_location);
 value magic_location references = 1066
 value magic_location references = *
 ```
- * The reason we need to type cast a void*, before reading it has more to do with why we type pointers
+ * The reason we need to type cast a void*, before reading it, has more to do with why we type pointers
     * Because when we read the value a pointer points to, we need to know how many bytes to read
     * Since different types have different sizes. And the pointer only has the address to the first byte
     * The way C manages this, is by having typed pointers
@@ -146,3 +152,153 @@ value magic_location references = *
         * For char*, first address and the next 1 byte
         * For structs, first address and the next sizeof(struct) bytes
         * And so on for other types
+    * Note that the sizeof a pointer is always the same, regardless of the type it's pointing to
+        * This is because the pointer only stores the address of the first byte of the variable
+        * That is why sizeof(int) != sizeof(char), but sizeof(int*) == sizeof(char*)
+  * On the next example i'll explain the sizeof operator
+### 3. sizeof
+* The sizeof operator is used to get the size of a type
+```c
+    sizeof(int);
+    sizeof(char);
+    sizeof(struct my_struct);
+```
+* The sizeof operator is also used to get the size of a variable's type
+```c
+    int magic_number = 42;
+    sizeof(magic_number);
+    char magic_char = 42;
+    sizeof(magic_char);
+    struct my_struct magic_struct = {magic_number, magic_char};
+    sizeof(magic_struct);
+```
+* This is possible because variable types are known at compile time and don't change
+* For this reason, the following is not possible
+```c
+    void *magic_location = &magic_thing;
+    sizeof(*magic_location);
+```
+* Since the type of *magic_location is unknown at compile time
+  * Because void* can point to any type
+* Or more directly
+```c
+    sizeof(void);
+```
+### 4. Pointer arithmetic
+#### 4.1 Go through an array
+* We can do arithmetic with pointers
+```c
+    int magic_number_array[] = {42, 1024};
+    int *magic_number_location = magic_number_array;
+    // equivalent to
+    // int *magic_number_location = &magic_number_array[0];
+    magic_number_location++;
+```
+* magic_number_location now points to &magic_number_array[1]
+* This is possible because the pointer stores the address of the first byte of the variable
+  * And we know what the next int is, since we know how many bytes an int uses to store it's value
+```c
+int magic_number_array[] = {42, One_every_8_bytes, 1024};
+int *magic_number_location = magic_number_array;
+printf("value magic_number_location references 0 = magic_number_array[0] = %d", *magic_number_location);
+magic_number_location++;
+printf("value magic_number_location references 1 = magic_number_array[1] = %d", *magic_number_location);
+magic_number_location++;
+printf("value magic_number_location references 2 = magic_number_array[2] = %d", *magic_number_location);
+```
+* Is equivalent to
+```c
+int magic_number_array[] = {42, One_every_8_bytes, 1024};
+printf("value magic_number_location references 0 = magic_number_array[0] = %d", magic_number_array[0]);
+printf("value magic_number_location references 1 = magic_number_array[1] = %d", magic_number_array[1]);
+printf("value magic_number_location references 2 = magic_number_array[2] = %d", magic_number_array[2]);
+```
+#### 4.2 Reading through an int-s bytes
+* We can also do arithmetic with pointers that don't have the
+* "same type" as the original variable that was created on that address
+```c
+#define POW_2_26 67108864
+#define POW_2_16_TIMES_3 (65536 * 3)
+#define POW_2_9 512
+#define POW_2_0 1
+#define One_every_8_bytes POW_2_26 + POW_2_16_TIMES_3 + POW_2_9 + POW_2_0
+int magic_number = One_every_8_bytes;
+char *magic_char_location = (char *)(&magic_number);
+printf("value magic_char_location references = %d", *magic_char_location);
+magic_char_location++;
+printf("value magic_char_location references = %d", *magic_char_location);
+magic_char_location++;
+printf("value magic_char_location references = %d", *magic_char_location);
+magic_char_location++;
+printf("value magic_char_location references = %d", *magic_char_location);
+```
+* Prints
+```
+value magic_char_location references = 1
+value magic_char_location references = 2
+value magic_char_location references = 3
+value magic_char_location references = 4
+```
+#### 4.3 Undefined behavior
+* In pointer arithmetic, the programmer has the responsibility to know how many int-s are stored sequentially
+  * So he doesn't violate the memory boundaries of his program
+* Using pointer arithmetic carelessly will cause plenty of undefined behavior
+  * And it's a common source of bugs
+  * The worst kind of bugs, since they are usually hard to debug. And may be silent errors
+```c
+    int magic_number_array[] = {42, 1024};
+    int *magic_number_location = &magic_number_array[1];
+```
+* Since magic_number_array has size 2 int-s, DO NOT DO THIS
+```c
+magic_number_location++;
+```
+* It may work, but it may also cause a segmentation fault.
+  * Even if it works, it is not guaranteed to work in the future.
+  * Even if it never breaks, it most likely results in reading thrash memory.
+* This is what we call undefined behavior
+```c
+    printf("value magic_number_location references = %d", *magic_number_location);
+```
+* Since magic_number_location points to an address that is not part of magic_number_array
+### 5. Malloc
+#### 5.1 What is malloc
+* Malloc is a function that allocates memory on the heap
+* It takes one argument, the size of the memory to allocate in bytes
+* It returns a void pointer to the allocated memory, or NULL if it fails
+```c
+#include <stdlib.h>
+void *magic_location = malloc(42);
+```
+#### 5.2 About allocated memory
+* The allocated memory is not initialized
+* It is allocated on the heap, as an array
+#### 5.3 Freeing allocated memory
+* It is the programmer's responsibility to free the allocated memory
+* Or this may lead to memory leaks
+```c 
+#include <stdlib.h>
+void *magic_location = malloc(42);
+free(magic_location);
+```
+* The free function takes a void pointer to the memory to free
+* Using it on a pointer that was not allocated with malloc will cause undefined behavior
+* Usually a segmentation fault caused by the double free
+#### 5.4 Why allocate on the heap
+* Allocating memory on the heap, happens on the runtime
+* Which allows you to read from user input to determine the size of the memory to allocate
+```c
+int n;
+scanf("%d", &n);
+struct Point3D *point_heap_array = malloc(sizeof(struct Point3D) * n);
+free(point_heap_array);
+```
+* This is also equivalent
+```c
+struct Point3D *may_change_type_heap_array = malloc(sizeof(*may_change_type_heap_array) * n);
+free(may_change_type_heap_array);
+```
+* Another advantage is that the allocated memory is not destroyed when the scope it was allocated in ends
+* And unlike the stack, it's size is not as limited
+* But unless you have any of the reasons above, it's better to allocate on the stack
+* It's faster, and it's easier to debug, since the memory is automatically freed when the scope ends
