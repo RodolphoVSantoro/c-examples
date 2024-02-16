@@ -1,0 +1,7 @@
+[
+  {
+    "directory": "F:/projetos_pessoais/c-examples/socket/socket",
+    "command": "gcc -std=c11 -Wall -Wextra -Werror -pedantic -Iinclude -Lbin -lm ./bin/sock.dll src/main.c -o bin/main.exe",
+    "file": "src/main.c"
+  }
+]

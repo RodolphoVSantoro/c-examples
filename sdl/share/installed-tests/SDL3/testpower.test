@@ -1,0 +1,3 @@
+[Test]
+Type=session
+Exec=D:/a/SDL/SDL/cmake_prefix/libexec/installed-tests/SDL3/testpower 

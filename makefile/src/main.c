@@ -1,6 +1,5 @@
+#include <libshapes.h>
 #include <stdio.h>
-
-#include "libshapes.h"
 
 int main() {
     float radius = 5.0;
